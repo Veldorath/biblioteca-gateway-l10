@@ -1,13 +1,17 @@
-# biblioteca-gateway: la imagen que levanta el compose.yml de biblioteca-plataforma.
-FROM node:24-alpine
+# biblioteca-gateway: compila en una etapa y ejecuta con dependencias de produccion.
+FROM node:24-slim AS build
 WORKDIR /app
-
-# Primero solo las dependencias: mientras package-lock.json no cambie, Docker reusa esta capa.
 COPY package.json package-lock.json ./
 RUN npm ci
-
 COPY . .
 RUN npm run build
 
+FROM node:24-slim
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+COPY --from=build /app/dist ./dist
+USER node
 EXPOSE 8080
 CMD ["node", "dist/main.js"]
