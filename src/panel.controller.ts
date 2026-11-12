@@ -64,6 +64,11 @@ export class PanelController {
     return this.haciaElBff('GET', '/panel/todos', authorization);
   }
 
+  @Get('en-vivo')
+  async enVivo(@Headers('authorization') authorization?: string) {
+    return this.haciaElBff('GET', '/panel/en-vivo', authorization);
+  }
+
   @Post('prestamos')
   async prestar(
     @Headers('authorization') authorization?: string,
